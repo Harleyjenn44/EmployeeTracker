@@ -49,7 +49,6 @@ function viewEmployees() {
 }
 
 function addEmployees() {
-    // prompt for info about the item being put up for auction
     inquirer
         .prompt([
             {
@@ -96,4 +95,56 @@ function addEmployees() {
                 }
             );
         });
+}
+
+function updateEmployee() {
+    
+    connection.query("SELECT * FROM employees", function(err, results) {
+      if (err) throw err;
+      inquirer
+        .prompt([
+          {
+            name: "choice",
+            type: "rawlist",
+            choices: function() {
+              var choiceArray = [];
+              for (var i = 0; i < results.length; i++) {
+                choiceArray.push(results[i].first_name);
+              }
+              return choiceArray;
+            },
+            message: "What employee would you like to update?"
+          },
+          {
+            name: "updateRole",
+            type: "input",
+            message: "What is their new role?"
+          }
+        ])
+        .then(function(answer) {
+          var chosenItem;
+          for (var i = 0; i < results.length; i++) {
+            if (results[i].item_name === answer.choice) {
+              chosenItem = results[i];
+            }
+        }
+        connection.query("SELECT * FROM employees", function(err, results) {
+        "UPDATE employees SET ? WHERE ?",
+        [
+          {
+            role_id: answer.updateRole
+          },
+          {
+            id: chosenItem.id
+          }
+        ],
+        function(error) {
+          if (error) throw err;
+          console.log("Employee update successfully!");
+          start();
+        }
+    }
+        )
+  });
+});
 }
